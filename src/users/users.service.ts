@@ -3,7 +3,7 @@ import { Repository } from 'typeorm';
 import { User } from './users.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { comparePassword, hashPassword } from '../utils/password.utils';
-import { LoginDto } from './dto/login.dto';
+// import { LoginDto } from './dto/login.dto';
 import { log } from 'console';
 
 @Injectable()
@@ -15,6 +15,10 @@ export class UsersService {
 
   findOne(id: number): Promise<User | null> {
     return this.usersRepository.findOneBy({ id: id });
+  }
+
+  findOneByUsername(username: string): Promise<User | null> {
+    return this.usersRepository.findOneBy({ username: username });
   }
 
   findAll(): Promise<User[]> {
@@ -42,21 +46,21 @@ export class UsersService {
     return this.usersRepository.save(newUser);
   }
 
-  async login(loginData: LoginDto) {
-    const username = loginData.username;
-    const user = await this.usersRepository.findOne({
-      where: {
-        username,
-      },
-    });
+  // async login(loginData: LoginDto) {
+  //   const username = loginData.username;
+  //   const user = await this.usersRepository.findOne({
+  //     where: {
+  //       username,
+  //     },
+  //   });
 
-    if (user) {
-      const valid = comparePassword(user.password, loginData.password);
-      if (valid) {
-        // TODO: should return jwt
-        return user;
-      }
-    }
-    return new UnauthorizedException('Invalid Credentials');
-  }
+  //   if (user) {
+  //     const valid = comparePassword(user.password, loginData.password);
+  //     if (valid) {
+  //       // TODO: should return jwt
+  //       return user;
+  //     }
+  //   }
+  //   return new UnauthorizedException('Invalid Credentials');
+  // }
 }

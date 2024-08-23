@@ -242,30 +242,30 @@ describe('UsersController', () => {
     });
   });
 
-  describe('login', () => {
-    it('happy case', async () => {
-      const user: CreateUserDto = {
-        username: 'bob',
-        email: 'bob@example.com',
-        password: 'tuantran',
-      };
+  // describe('login', () => {
+  //   it('happy case', async () => {
+  //     const user: CreateUserDto = {
+  //       username: 'bob',
+  //       email: 'bob@example.com',
+  //       password: 'tuantran',
+  //     };
 
-      const createdUser = await controller.createUser(user);
+  //     const createdUser = await controller.createUser(user);
 
-      // try login
+  //     // try login
 
-      const result = await controller.loginUser({
-        username: 'bob',
-        password: 'tuantran',
-      });
-      // ensure no exception thrown
-      expect(result).toBeDefined();
-      expect(result).toEqual(
-        expect.objectContaining({
-          username: user.username,
-          email: user.email,
-        }),
-      );
-    });
-  });
+  //     const result = await controller.loginUser({
+  //       username: 'bob',
+  //       password: 'tuantran',
+  //     });
+  //     // ensure no exception thrown
+  //     expect(result).toBeDefined();
+  //     expect(result).toEqual(
+  //       expect.objectContaining({
+  //         username: user.username,
+  //         email: user.email,
+  //       }),
+  //   );
+  // });
+  // });
 });
