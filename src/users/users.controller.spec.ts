@@ -5,6 +5,12 @@ import { User } from './users.entity';
 import { UsersProvider } from './users.providers';
 import { DatabaseModule } from '../database/database.module';
 import { DataSource, Repository } from 'typeorm';
+import { CreateUserDto } from './dto/create-user.dto';
+import {
+  INestApplication,
+  UnauthorizedException,
+  ValidationPipe,
+} from '@nestjs/common';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -12,6 +18,7 @@ describe('UsersController', () => {
   let module: TestingModule;
   let dataSource: DataSource;
   let userRepository: Repository<User>;
+  let app: INestApplication;
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
@@ -25,13 +32,17 @@ describe('UsersController', () => {
     dataSource = module.get<DataSource>('DATA_SOURCE');
     userRepository = module.get<Repository<User>>('USERS_REPOSITORY');
 
-    // // Clear the database before each test
-    // await userRepository.clear();
+    app = module.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe()); // <- This addition
+    await app.init();
+
+    // Clear the database before each test
+    await userRepository.clear();
   });
 
-  //   afterEach(async () => {
-  //     await controller.deleteAllUsers();
-  //   });
+  afterEach(async () => {
+    await controller.deleteAllUsers();
+  });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
@@ -107,8 +118,7 @@ describe('UsersController', () => {
 
   describe('createUser', () => {
     it('should create a new user', async () => {
-      const user: User = {
-        id: 1,
+      const user: CreateUserDto = {
         username: 'newuser',
         email: 'new@example.com',
         password: 'newpassword',
@@ -125,6 +135,16 @@ describe('UsersController', () => {
       expect(createdUser.id).toBeDefined();
       expect(createdUser.password).toBeDefined();
     });
+
+    // it('should fail, password too short', async () => {
+    //   const user: CreateUserDto = {
+    //     username: 'newuser',
+    //     email: 'new1@example.com',
+    //     password: '123',
+    //   };
+
+    //   await expect(controller.createUser(user)).rejects.toThrow(ValidationPipe);
+    // });
   });
 
   describe('updateUser', () => {
@@ -219,6 +239,33 @@ describe('UsersController', () => {
 
       const deletedUser = await controller.getUser(createdUser.id);
       expect(deletedUser).toBeNull();
+    });
+  });
+
+  describe('login', () => {
+    it('happy case', async () => {
+      const user: CreateUserDto = {
+        username: 'bob',
+        email: 'bob@example.com',
+        password: 'tuantran',
+      };
+
+      const createdUser = await controller.createUser(user);
+
+      // try login
+
+      const result = await controller.loginUser({
+        username: 'bob',
+        password: 'tuantran',
+      });
+      // ensure no exception thrown
+      expect(result).toBeDefined();
+      expect(result).toEqual(
+        expect.objectContaining({
+          username: user.username,
+          email: user.email,
+        }),
+      );
     });
   });
 });

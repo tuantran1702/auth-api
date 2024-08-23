@@ -1,8 +1,10 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './users.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { hashPassword } from '../utils/hash.utils';
+import { comparePassword, hashPassword } from '../utils/password.utils';
+import { LoginDto } from './dto/login.dto';
+import { log } from 'console';
 
 @Injectable()
 export class UsersService {
@@ -38,5 +40,23 @@ export class UsersService {
       password,
     });
     return this.usersRepository.save(newUser);
+  }
+
+  async login(loginData: LoginDto) {
+    const username = loginData.username;
+    const user = await this.usersRepository.findOne({
+      where: {
+        username,
+      },
+    });
+
+    if (user) {
+      const valid = comparePassword(user.password, loginData.password);
+      if (valid) {
+        // TODO: should return jwt
+        return user;
+      }
+    }
+    return new UnauthorizedException('Invalid Credentials');
   }
 }
