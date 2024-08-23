@@ -63,17 +63,16 @@ describe('UsersController', () => {
           expect.objectContaining({
             username: user1.username,
             email: user1.email,
-            password: user1.password,
           }),
           expect.objectContaining({
             username: user2.username,
             email: user2.email,
-            password: user2.password,
           }),
         ]),
       );
       users.forEach((user) => {
         expect(user.id).toBeDefined();
+        expect(user.password).toBeDefined();
       });
     });
   });
@@ -94,10 +93,10 @@ describe('UsersController', () => {
         expect.objectContaining({
           username: user.username,
           email: user.email,
-          password: user.password,
         }),
       );
       expect(foundUser.id).toBeDefined();
+      expect(foundUser.password).toBeDefined();
     });
 
     it('should return null for non-existent user', async () => {
@@ -121,10 +120,10 @@ describe('UsersController', () => {
         expect.objectContaining({
           username: user.username,
           email: user.email,
-          password: user.password,
         }),
       );
       expect(createdUser.id).toBeDefined();
+      expect(createdUser.password).toBeDefined();
     });
   });
 
@@ -148,16 +147,16 @@ describe('UsersController', () => {
 
       await controller.updateUser(createdUser.id, updatedData);
 
-      const updatedUser = await controller.getUserById(createdUser.id);
+      const updatedUser = await controller.getUser(createdUser.id);
 
       expect(updatedUser).toEqual(
         expect.objectContaining({
           username: updatedData.username,
           email: updatedData.email,
-          password: updatedData.password,
         }),
       );
       expect(updatedUser.id).toBe(createdUser.id);
+      expect(updatedUser.password).toBeDefined();
     });
   });
 
@@ -174,48 +173,9 @@ describe('UsersController', () => {
 
       await controller.deleteUser(createdUser.id);
 
-      const deletedUser = await controller.getUserById(createdUser.id);
+      const deletedUser = await controller.getUser(createdUser.id);
 
       expect(deletedUser).toBeNull();
-    });
-  });
-
-  describe('createManyUsers', () => {
-    it('should create multiple users', async () => {
-      const users: User[] = [
-        {
-          id: 1,
-          username: 'user1',
-          email: 'user1@example.com',
-          password: 'password1',
-        },
-        {
-          id: 2,
-          username: 'user2',
-          email: 'user2@example.com',
-          password: 'password2',
-        },
-        {
-          id: 3,
-          username: 'user3',
-          email: 'user3@example.com',
-          password: 'password3',
-        },
-      ];
-
-      const createdUsers = await controller.createManyUsers(users);
-
-      expect(createdUsers).toHaveLength(3);
-      createdUsers.forEach((createdUser, index) => {
-        expect(createdUser).toEqual(
-          expect.objectContaining({
-            username: users[index].username,
-            email: users[index].email,
-            password: users[index].password,
-          }),
-        );
-        expect(createdUser.id).toBeDefined();
-      });
     });
   });
 
@@ -236,34 +196,12 @@ describe('UsersController', () => {
         },
       ];
 
-      await controller.createManyUsers(users);
+      await controller.createUser(users[0]);
+      await controller.createUser(users[1]);
       await controller.deleteAllUsers();
 
       const remainingUsers = await controller.getUsers();
       expect(remainingUsers).toHaveLength(0);
-    });
-  });
-
-  describe('getUserById', () => {
-    it('should return a user by id', async () => {
-      const user: User = {
-        id: 1,
-        username: 'testuser',
-        email: 'test@example.com',
-        password: 'testpassword',
-      };
-
-      const createdUser = await controller.createUser(user);
-      const foundUser = await controller.getUserById(createdUser.id);
-
-      expect(foundUser).toEqual(
-        expect.objectContaining({
-          username: user.username,
-          email: user.email,
-          password: user.password,
-        }),
-      );
-      expect(foundUser.id).toBeDefined();
     });
   });
 
@@ -277,9 +215,9 @@ describe('UsersController', () => {
       };
 
       const createdUser = await controller.createUser(user);
-      await controller.deleteUserById(createdUser.id);
+      await controller.deleteUser(createdUser.id);
 
-      const deletedUser = await controller.getUserById(createdUser.id);
+      const deletedUser = await controller.getUser(createdUser.id);
       expect(deletedUser).toBeNull();
     });
   });
