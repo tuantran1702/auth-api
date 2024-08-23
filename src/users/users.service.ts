@@ -2,7 +2,7 @@ import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './users.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { comparePassword, hashPassword } from '../utils/password.utils';
+import { comparePassword, hashPassword } from '../auth/utils/password.utils';
 // import { LoginDto } from './dto/login.dto';
 import { log } from 'console';
 
